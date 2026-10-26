@@ -32,19 +32,12 @@
   color: var(--gf-accent);
 }
 
-.gf-enlace-nav {
-  color: var(--gf-muted);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.gf-enlace-nav:hover {
-  color: var(--gf-text);
-}
-
 /* ---------- Sección principal ---------- */
 main {
   flex: 1;
+  /* La sección principal se estira para llenar el alto de la pantalla: sin huecos negros antes del pie */
+  display: flex;
+  flex-direction: column;
 }
 
 /* El foco programático en <main> (desde "Saltar al contenido") no necesita anillo */
@@ -54,7 +47,11 @@ main:focus {
 
 .gf-hero {
   position: relative;
-  padding: 2.5rem 0 3.5rem;
+  flex: 1;
+  /* El contenido se centra en vertical si la pantalla es más alta de lo necesario */
+  display: flex;
+  align-items: center;
+  padding: 2.5rem 0 3rem;
   overflow: hidden;
   /* isolation: la foto y el degradado (z-index negativo) quedan dentro de esta sección, nunca detrás de la página */
   isolation: isolate;
@@ -100,11 +97,12 @@ main:focus {
 
 .gf-hero > .container {
   position: relative;
+  width: 100%;
 }
 
 @media (min-width: 992px) {
   .gf-hero {
-    padding: 4.5rem 0 5.5rem;
+    padding: 4.5rem 0 5rem;
   }
 }
 
@@ -125,11 +123,6 @@ main:focus {
 .gf-lead {
   color: #d4d4d8;
   text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7);
-}
-
-.gf-subtitulo {
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  text-transform: uppercase;
 }
 
 /* Botones de tema bajo el título: parecen etiquetas, pero son botones que preguntan al asistente */
@@ -160,61 +153,8 @@ main:focus {
 
 /* Las secciones enlazadas con #ancla no quedan tapadas por la cabecera fija */
 #asistente,
-#informacion,
 #inicio {
   scroll-margin-top: 5rem;
-}
-
-/* ---------- Información ---------- */
-.gf-info {
-  padding: 3.5rem 0 4rem;
-  background: var(--gf-surface);
-  border-top: 1px solid var(--gf-border);
-}
-
-@media (min-width: 992px) {
-  .gf-info {
-    padding: 5rem 0 5.5rem;
-  }
-}
-
-.gf-tarjeta {
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  border: 1px solid var(--gf-border);
-  border-radius: var(--gf-radius);
-  background: var(--gf-bg);
-  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.9);
-  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.gf-tarjeta:hover {
-  border-color: var(--gf-accent);
-  transform: translateY(-4px);
-  box-shadow: 0 22px 40px -20px rgba(255, 106, 26, 0.45);
-}
-
-.gf-icono {
-  display: grid;
-  place-items: center;
-  width: 3rem;
-  height: 3rem;
-  margin-bottom: 1rem;
-  border-radius: 0.8rem;
-  background: var(--gf-accent-soft);
-  color: var(--gf-accent);
-}
-
-.gf-icono svg {
-  width: 1.6rem;
-  height: 1.6rem;
-}
-
-.gf-tarjeta-titulo {
-  font-size: 1.25rem;
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
 }
 
 /* ---------- Pie ---------- */

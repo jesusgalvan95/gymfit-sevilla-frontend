@@ -57,6 +57,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/*
+ * El hijo directo del body es <app-root> (no <main>), así que es él quien debe ocupar el alto de la pantalla y
+ * repartirlo en columna: cabecera, contenido (que se estira) y pie. Sin esto el pie queda a media pantalla y
+ * debajo se ve una franja vacía en pantallas altas.
+ */
+app-root {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
 h1, h2, h3, h4, .gf-display {
   font-family: var(--gf-font-display);
   font-weight: 800;

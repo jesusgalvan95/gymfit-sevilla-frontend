@@ -21,10 +21,6 @@ describe('App', () => {
     await fixture.whenStable();
   });
 
-  function tarjetasConBoton(): HTMLButtonElement[] {
-    return Array.from(pagina.querySelectorAll<HTMLButtonElement>('#informacion article button'));
-  }
-
   function botonesDelHero(): HTMLButtonElement[] {
     return Array.from(pagina.querySelectorAll<HTMLButtonElement>('#inicio ul.gf-etiquetas button'));
   }
@@ -46,9 +42,10 @@ describe('App', () => {
     const salto = pagina.querySelector<HTMLAnchorElement>('a.gf-skip')!;
     expect(salto.getAttribute('href')).toBe('#contenido');
 
+    // h1 de la página y h2 del chat, sin saltos de nivel
     expect(pagina.querySelectorAll('h1').length).toBe(1);
-    expect(pagina.querySelectorAll('h2').length).toBeGreaterThanOrEqual(2);
-    expect(pagina.querySelectorAll('h3').length).toBe(4);
+    expect(pagina.querySelectorAll('h2').length).toBe(1);
+    expect(pagina.querySelectorAll('h3').length).toBe(0);
 
     const svgSinOcultar = Array.from(pagina.querySelectorAll('svg')).filter(
       (svg) => svg.getAttribute('aria-hidden') !== 'true' && !svg.closest('[aria-hidden="true"]'),
@@ -56,45 +53,24 @@ describe('App', () => {
     expect(svgSinOcultar.length).toBe(0);
   });
 
-  it('los enlaces de la cabecera apuntan a secciones que existen', () => {
-    const destinos = Array.from(pagina.querySelectorAll<HTMLAnchorElement>('header a[href^="#"]')).map((a) =>
+  /** Ningún enlace interno de la página (cabecera, "Saltar al contenido", pie) puede apuntar a algo que no existe. */
+  it('todos los enlaces internos apuntan a elementos que existen', () => {
+    const destinos = Array.from(pagina.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')).map((a) =>
       a.getAttribute('href')!,
     );
 
-    expect(destinos.length).toBeGreaterThan(0);
+    expect(destinos.length).toBeGreaterThanOrEqual(4); // saltar al contenido, inicio, asistente, volver arriba
     for (const destino of destinos) {
       expect(pagina.querySelector(destino), `no existe ${destino}`).not.toBeNull();
     }
   });
 
-  it('muestra tres tarjetas que preguntan al asistente y una informativa', () => {
-    expect(pagina.querySelectorAll('#informacion article').length).toBe(4);
-    expect(tarjetasConBoton().length).toBe(3);
-  });
-
-  it('al pulsar una tarjeta se envía su pregunta a POST /api/chat y se muestra en el chat', async () => {
-    tarjetasConBoton()[1].click(); // Tarifas
-    await fixture.whenStable();
-
-    const peticion = http.expectOne('/api/chat');
-    expect(peticion.request.method).toBe('POST');
-    expect(peticion.request.body).toEqual({ mensaje: '¿Cuánto cuestan las tarifas?' });
-    expect(pagina.querySelector('app-chat')!.textContent).toContain('¿Cuánto cuestan las tarifas?');
-
-    peticion.flush({ respuesta: 'Respuesta de prueba', intencion: 'PRECIO' });
-    await fixture.whenStable();
-    expect(pagina.querySelector('app-chat')!.textContent).toContain('Respuesta de prueba');
-  });
-
-  it('las tarjetas se desactivan mientras el chat espera una respuesta', async () => {
-    tarjetasConBoton()[0].click();
-    await fixture.whenStable();
-
-    expect(tarjetasConBoton().every((boton) => boton.disabled)).toBe(true);
-
-    http.expectOne('/api/chat').flush({ respuesta: 'ok', intencion: 'HORARIO' });
-    await fixture.whenStable();
-    expect(tarjetasConBoton().some((boton) => boton.disabled)).toBe(false);
+  it('la página queda en cabecera, sección principal con chat y pie: sin sección de información ni tarjetas', () => {
+    expect(pagina.querySelectorAll('main > section').length).toBe(1);
+    expect(pagina.querySelector('#informacion')).toBeNull();
+    expect(pagina.querySelector('article')).toBeNull();
+    expect(pagina.textContent).not.toContain('Qué puedes consultar');
+    expect(pagina.querySelector('header a[href="#informacion"]')).toBeNull();
   });
 
   it('la foto de la sección principal es decorativa y se carga con varios tamaños', () => {
@@ -162,7 +138,7 @@ describe('App', () => {
       horarios.click();
       horarios.click(); // doble clic inmediato, antes de que Angular repinte
       tarifas.click(); // otro botón mientras la primera pregunta sigue en curso
-      tarjetasConBoton()[2].click(); // y una tarjeta
+      pagina.querySelector<HTMLButtonElement>('.gf-sugerencia')!.click(); // y una sugerencia del chat
       await fixture.whenStable();
 
       const peticiones = http.match('/api/chat');

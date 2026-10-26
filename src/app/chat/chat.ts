@@ -50,7 +50,7 @@ export class Chat {
   ]);
   protected readonly borrador = signal('');
 
-  /** true mientras se espera la respuesta. Es público para que la página desactive las tarjetas durante la espera. */
+  /** true mientras se espera la respuesta. Es público para que la página desactive sus botones de tema durante la espera. */
   readonly cargando = signal(false);
   /** true si la respuesta tarda más de {@link UMBRAL_RESPUESTA_LENTA_MS}. */
   protected readonly lento = signal(false);
@@ -79,7 +79,7 @@ export class Chat {
   }
 
   /**
-   * Envía una pregunta desde fuera del chat (las tarjetas de la página) y lleva la vista hasta la conversación.
+   * Envía una pregunta desde fuera del chat (los botones de tema de la página) y lleva la vista hasta la conversación.
    * No toca el texto que el cliente esté escribiendo. Si ya hay una pregunta en curso, no hace nada.
    */
   preguntar(pregunta: string): void {

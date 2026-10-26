@@ -15,7 +15,6 @@
     </a>
 
     <nav class="d-flex align-items-center gap-3 gap-md-4" aria-label="Principal">
-      <a class="gf-enlace-nav d-none d-md-inline" href="#informacion">Qué puedes consultar</a>
       <!-- En móvil el texto se acorta para que el botón quepa en una sola línea -->
       <a class="btn btn-accent btn-sm rounded-pill px-3 text-nowrap" href="#asistente">
         <span class="d-none d-sm-inline">Hablar con el asistente</span>
@@ -69,61 +68,6 @@
         <div id="asistente" class="col-lg-7">
           <app-chat />
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Información: tarjetas que envían la pregunta al chat -->
-  <section id="informacion" class="gf-info" aria-labelledby="titulo-info">
-    <div class="container">
-      <div class="mb-4 mb-lg-5">
-        <span class="gf-eyebrow mb-2">El gimnasio</span>
-        <h2 id="titulo-info" class="gf-subtitulo mb-2">Qué puedes consultar</h2>
-        <p class="text-body-secondary mb-0">Pulsa una tarjeta y el asistente te responderá en el chat.</p>
-      </div>
-
-      <div class="row g-3 g-lg-4">
-        @for (tarjeta of tarjetas; track tarjeta.titulo) {
-          <div class="col-sm-6 col-lg-3">
-            <article class="gf-tarjeta h-100">
-              <div class="gf-icono" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                  @switch (tarjeta.icono) {
-                    @case ('reloj') {
-                      <circle cx="12" cy="12" r="9" />
-                      <path d="M12 7v5l3.2 2" />
-                    }
-                    @case ('tarifa') {
-                      <path d="M4 12.6V5a1 1 0 0 1 1-1h7.6a1 1 0 0 1 .7.3l6.4 6.4a1 1 0 0 1 0 1.4l-6.6 6.6a1 1 0 0 1-1.4 0L4.3 13.3a1 1 0 0 1-.3-.7Z" />
-                      <circle cx="8.5" cy="8.5" r="1.3" />
-                    }
-                    @case ('matricula') {
-                      <rect x="3" y="5" width="18" height="14" rx="2" />
-                      <path d="M3 10h18M7 15h4" />
-                    }
-                    @case ('recepcion') {
-                      <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.5-4.6A8 8 0 1 1 21 12Z" />
-                      <path d="M9 11h6M9 14h3.5" />
-                    }
-                  }
-                </svg>
-              </div>
-              <h3 class="gf-tarjeta-titulo">{{ tarjeta.titulo }}</h3>
-              <p class="text-body-secondary">{{ tarjeta.descripcion }}</p>
-              @if (tarjeta.pregunta; as pregunta) {
-                <button
-                  type="button"
-                  class="btn btn-accent-outline btn-sm mt-auto align-self-start"
-                  [disabled]="chat()?.cargando()"
-                  (click)="preguntar(pregunta)"
-                >
-                  {{ tarjeta.accion }}
-                  <span aria-hidden="true">→</span>
-                </button>
-              }
-            </article>
-          </div>
-        }
       </div>
     </div>
   </section>
