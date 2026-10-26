@@ -1,6 +1,21 @@
-import { afterRenderEffect, Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
+import {
+  afterRenderEffect,
+  Component,
+  computed,
+  DestroyRef,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { MAX_CARACTERES_MENSAJE, MensajeChat } from './chat.models';
 import { ChatService } from './chat.service';
+
+/**
+ * Segundos de espera tras los que se avisa de que la respuesta tarda más de lo normal.
+ * Ocurre, por ejemplo, con la primera pregunta tras un rato sin uso: un modelo local tiene que cargarse en memoria.
+ */
+export const UMBRAL_RESPUESTA_LENTA_MS = 6_000;
 
 /**
  * Ventana de chat con el asistente de GymFit Sevilla.
@@ -15,6 +30,7 @@ import { ChatService } from './chat.service';
 })
 export class Chat {
   private readonly chatService = inject(ChatService);
+  private readonly anfitrion = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly maxCaracteres = MAX_CARACTERES_MENSAJE;
 
@@ -33,7 +49,11 @@ export class Chat {
     },
   ]);
   protected readonly borrador = signal('');
-  protected readonly cargando = signal(false);
+
+  /** true mientras se espera la respuesta. Es público para que la página desactive las tarjetas durante la espera. */
+  readonly cargando = signal(false);
+  /** true si la respuesta tarda más de {@link UMBRAL_RESPUESTA_LENTA_MS}. */
+  protected readonly lento = signal(false);
 
   /** El botón de enviar solo se activa con texto válido y sin otra petición en curso. */
   protected readonly puedeEnviar = computed(() => {
@@ -42,17 +62,36 @@ export class Chat {
   });
 
   private readonly lista = viewChild<ElementRef<HTMLElement>>('lista');
+  private temporizadorLento: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     // Tras pintar un mensaje nuevo o el indicador de carga, baja hasta el final de la conversación.
     afterRenderEffect(() => {
       this.mensajes();
       this.cargando();
+      this.lento();
       const elemento = this.lista()?.nativeElement;
       if (elemento) {
         elemento.scrollTop = elemento.scrollHeight;
       }
     });
+    inject(DestroyRef).onDestroy(() => clearTimeout(this.temporizadorLento));
+  }
+
+  /**
+   * Envía una pregunta desde fuera del chat (las tarjetas de la página) y lleva la vista hasta la conversación.
+   * No toca el texto que el cliente esté escribiendo. Si ya hay una pregunta en curso, no hace nada.
+   */
+  preguntar(pregunta: string): void {
+    if (this.cargando()) {
+      return;
+    }
+    // scrollIntoView puede no existir (por ejemplo, en los tests); "?." evita el error.
+    this.anfitrion.nativeElement.scrollIntoView?.({
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'center',
+    });
+    this.enviarTexto(pregunta);
   }
 
   protected actualizarBorrador(evento: Event): void {
@@ -68,8 +107,9 @@ export class Chat {
   }
 
   protected enviarSugerencia(texto: string): void {
-    this.borrador.set(texto);
-    this.enviar();
+    if (!this.cargando()) {
+      this.enviarTexto(texto);
+    }
   }
 
   protected enviar(): void {
@@ -77,14 +117,19 @@ export class Chat {
       return;
     }
     const texto = this.borrador().trim();
-    this.anadir({ autor: 'cliente', texto });
     this.borrador.set('');
+    this.enviarTexto(texto);
+  }
+
+  private enviarTexto(texto: string): void {
+    this.anadir({ autor: 'cliente', texto });
     this.cargando.set(true);
+    this.temporizadorLento = setTimeout(() => this.lento.set(true), UMBRAL_RESPUESTA_LENTA_MS);
 
     this.chatService.enviar(texto).subscribe({
       next: (respuesta) => {
         this.anadir({ autor: 'asistente', texto: respuesta.respuesta });
-        this.cargando.set(false);
+        this.terminarEspera();
       },
       error: (error: Error) => {
         this.anadir({ autor: 'asistente', texto: error.message, error: true });
@@ -92,9 +137,15 @@ export class Chat {
         if (this.borrador() === '') {
           this.borrador.set(texto);
         }
-        this.cargando.set(false);
+        this.terminarEspera();
       },
     });
+  }
+
+  private terminarEspera(): void {
+    clearTimeout(this.temporizadorLento);
+    this.lento.set(false);
+    this.cargando.set(false);
   }
 
   private anadir(mensaje: MensajeChat): void {

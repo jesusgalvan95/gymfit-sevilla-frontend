@@ -1,68 +1,89 @@
-<section class="card shadow-sm chat">
-  <header class="card-header bg-dark text-white d-flex align-items-center gap-2">
-    <span class="estado rounded-circle bg-success" aria-hidden="true"></span>
-    <h2 class="h6 mb-0">Asistente GymFit</h2>
+<section class="gf-chat" aria-labelledby="titulo-chat">
+  <header class="gf-chat-cabecera">
+    <div class="gf-chat-avatar" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+        <rect x="4" y="8" width="16" height="11" rx="3" />
+        <path d="M12 4v4M9 13h.01M15 13h.01M9.5 16h5" />
+      </svg>
+    </div>
+    <div>
+      <h2 id="titulo-chat" class="gf-chat-titulo">Asistente GymFit</h2>
+      <p class="gf-chat-subtitulo">Asistente con IA · Horarios, tarifas y matrícula</p>
+    </div>
   </header>
 
-  <!-- aria-live: los lectores de pantalla anuncian los mensajes nuevos -->
-  <div #lista class="card-body mensajes" role="log" aria-live="polite" aria-label="Conversación">
+  <!--
+    role="log" + aria-live="polite": los lectores de pantalla anuncian cada mensaje nuevo sin interrumpir.
+    aria-busy indica que hay una respuesta en camino. tabindex="0" permite desplazar la conversación con el teclado.
+  -->
+  <div
+    #lista
+    class="gf-chat-mensajes"
+    role="log"
+    aria-live="polite"
+    aria-label="Conversación"
+    [attr.aria-busy]="cargando()"
+    tabindex="0"
+  >
     @for (mensaje of mensajes(); track $index) {
-      <div class="d-flex mb-2" [class.justify-content-end]="mensaje.autor === 'cliente'">
+      <div class="gf-fila" [class.gf-fila-cliente]="mensaje.autor === 'cliente'">
         <div
-          class="burbuja px-3 py-2 rounded-3"
-          [class.bg-primary]="mensaje.autor === 'cliente'"
-          [class.text-white]="mensaje.autor === 'cliente'"
-          [class.bg-body-secondary]="mensaje.autor === 'asistente' && !mensaje.error"
-          [class.alert-danger]="mensaje.error"
-          [class.alert]="mensaje.error"
-          [class.mb-0]="mensaje.error"
-          [attr.data-autor]="mensaje.autor"
+          class="burbuja"
+          [class.burbuja-cliente]="mensaje.autor === 'cliente'"
+          [class.burbuja-asistente]="mensaje.autor === 'asistente' && !mensaje.error"
+          [class.burbuja-error]="mensaje.error"
         >
+          <span class="visually-hidden">{{ mensaje.autor === 'cliente' ? 'Tú:' : 'Asistente:' }}</span>
           {{ mensaje.texto }}
         </div>
       </div>
     }
 
     @if (cargando()) {
-      <div class="d-flex mb-2 cargando" role="status">
-        <div class="burbuja px-3 py-2 rounded-3 bg-body-secondary text-secondary">
-          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-          El asistente está escribiendo…
+      <div class="gf-fila cargando" role="status">
+        <div class="burbuja burbuja-asistente">
+          <span class="gf-puntos" aria-hidden="true"><span></span><span></span><span></span></span>
+          @if (lento()) {
+            El asistente sigue preparando tu respuesta. Puede tardar unos segundos más…
+          } @else {
+            El asistente está escribiendo…
+          }
         </div>
       </div>
     }
   </div>
 
-  <footer class="card-footer bg-body">
-    <div class="d-flex flex-wrap gap-2 mb-2">
+  <footer class="gf-chat-pie">
+    <div class="d-flex flex-wrap gap-2 mb-3" role="group" aria-label="Preguntas frecuentes">
       @for (sugerencia of sugerencias; track sugerencia) {
-        <button
-          type="button"
-          class="btn btn-sm btn-outline-secondary"
-          [disabled]="cargando()"
-          (click)="enviarSugerencia(sugerencia)"
-        >
+        <button type="button" class="gf-sugerencia" [disabled]="cargando()" (click)="enviarSugerencia(sugerencia)">
           {{ sugerencia }}
         </button>
       }
     </div>
 
-    <form class="d-flex gap-2 align-items-end" (submit)="$event.preventDefault(); enviar()">
+    <form class="d-flex gap-2 align-items-start" (submit)="$event.preventDefault(); enviar()">
       <div class="flex-grow-1">
         <label for="mensaje" class="visually-hidden">Escribe tu pregunta</label>
         <textarea
           id="mensaje"
-          class="form-control"
+          class="form-control gf-campo"
           rows="1"
           placeholder="Escribe tu pregunta…"
+          aria-describedby="contador-mensaje"
           [maxLength]="maxCaracteres"
           [value]="borrador()"
           (input)="actualizarBorrador($event)"
           (keydown)="alPulsarTecla($event)"
         ></textarea>
-        <div class="form-text text-end">{{ borrador().length }}/{{ maxCaracteres }}</div>
+        <div id="contador-mensaje" class="gf-contador">{{ borrador().length }}/{{ maxCaracteres }} caracteres</div>
       </div>
-      <button type="submit" class="btn btn-primary mb-4" [disabled]="!puedeEnviar()">Enviar</button>
+      <button type="submit" class="btn btn-accent gf-enviar" [disabled]="!puedeEnviar()">
+        Enviar
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <path d="M5 12h14M13 6l6 6-6 6" />
+        </svg>
+      </button>
     </form>
   </footer>
 </section>

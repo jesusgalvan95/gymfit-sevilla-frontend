@@ -1,9 +1,146 @@
+/*
+ * Estilos globales de GymFit Sevilla.
+ *
+ * Bootstrap 5.3 (tema oscuro) pone la base: rejilla, formularios, utilidades. Aquí solo se definen los colores
+ * de la marca (negro y naranja), la tipografía y los componentes que se repiten en toda la página.
+ * Los estilos propios de cada componente están en su archivo .css.
+ */
+
+:root {
+  /* Superficies, de más oscura a más clara */
+  --gf-bg: #0b0b0d;
+  --gf-surface: #151518;
+  --gf-surface-2: #1d1d22;
+  --gf-border: #2c2c33;
+
+  /* Texto: --gf-muted sobre --gf-surface cumple el contraste AA (más de 7:1) */
+  --gf-text: #f4f4f5;
+  --gf-muted: #a8a8b3;
+
+  /* Naranja de marca. Sobre fondo oscuro contrasta más de 7:1. Los botones naranjas llevan texto oscuro
+     (--gf-on-accent): el texto blanco sobre este naranja no llega a AA. */
+  --gf-accent: #ff6a1a;
+  --gf-accent-hover: #ff8340;
+  --gf-accent-soft: rgba(255, 106, 26, 0.14);
+  --gf-on-accent: #0b0b0d;
+
+  --gf-radius: 1rem;
+
+  /* Tipografía de sistema: no se descarga ninguna fuente (rápido y sin enviar datos a terceros).
+     Bahnschrift (Windows) da un aire deportivo a los títulos; en otros sistemas se usa la fuente del sistema. */
+  --gf-font-display: Bahnschrift, "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* Variables de Bootstrap: así sus componentes (formularios, enlaces...) usan la paleta de la marca. */
+  --bs-body-bg: var(--gf-bg);
+  --bs-body-color: var(--gf-text);
+  --bs-secondary-color: var(--gf-muted);
+  --bs-border-color: var(--gf-border);
+  --bs-link-color: var(--gf-accent);
+  --bs-link-hover-color: var(--gf-accent-hover);
+  --bs-link-color-rgb: 255, 106, 26;
+  --bs-link-hover-color-rgb: 255, 131, 64;
+  --bs-primary: var(--gf-accent);
+  --bs-primary-rgb: 255, 106, 26;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--gf-bg);
+  color: var(--gf-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
 }
 
-main {
-  flex: 1;
+h1, h2, h3, h4, .gf-display {
+  font-family: var(--gf-font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+/* Anillo de foco visible y consistente para quien navega con teclado */
+:focus-visible {
+  outline: 3px solid var(--gf-accent);
+  outline-offset: 3px;
+  border-radius: 0.375rem;
+}
+
+/* Enlace "Saltar al contenido": solo aparece al recibir el foco con el teclado */
+.gf-skip {
+  position: absolute;
+  top: -4rem;
+  left: 1rem;
+  z-index: 2000;
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--gf-accent);
+  color: var(--gf-on-accent);
+  font-weight: 700;
+  text-decoration: none;
+  transition: top 0.15s ease;
+}
+
+.gf-skip:focus {
+  top: 1rem;
+}
+
+/* Botón naranja de marca */
+.btn-accent {
+  --bs-btn-color: var(--gf-on-accent);
+  --bs-btn-bg: var(--gf-accent);
+  --bs-btn-border-color: var(--gf-accent);
+  --bs-btn-hover-color: var(--gf-on-accent);
+  --bs-btn-hover-bg: var(--gf-accent-hover);
+  --bs-btn-hover-border-color: var(--gf-accent-hover);
+  --bs-btn-active-color: var(--gf-on-accent);
+  --bs-btn-active-bg: var(--gf-accent-hover);
+  --bs-btn-active-border-color: var(--gf-accent-hover);
+  --bs-btn-disabled-color: #6b6b75;
+  --bs-btn-disabled-bg: #26262c;
+  --bs-btn-disabled-border-color: #26262c;
+  font-weight: 700;
+}
+
+/* Botón con borde naranja */
+.btn-accent-outline {
+  --bs-btn-color: var(--gf-accent);
+  --bs-btn-border-color: var(--gf-accent);
+  --bs-btn-hover-color: var(--gf-on-accent);
+  --bs-btn-hover-bg: var(--gf-accent);
+  --bs-btn-hover-border-color: var(--gf-accent);
+  --bs-btn-active-color: var(--gf-on-accent);
+  --bs-btn-active-bg: var(--gf-accent-hover);
+  --bs-btn-active-border-color: var(--gf-accent-hover);
+  --bs-btn-disabled-color: #6b6b75;
+  --bs-btn-disabled-border-color: #3a3a42;
+  font-weight: 600;
+}
+
+/* Texto pequeño en mayúsculas que antecede a los títulos */
+.gf-eyebrow {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gf-accent);
+}
+
+/* Quien prefiere menos movimiento no ve animaciones ni desplazamientos suaves */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
