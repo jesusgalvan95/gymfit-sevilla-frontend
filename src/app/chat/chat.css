@@ -1,0 +1,26 @@
+.mensajes {
+  height: 420px;
+  overflow-y: auto;
+}
+
+/* En móvil el chat ocupa casi toda la altura visible. */
+@media (max-width: 576px) {
+  .mensajes {
+    height: 60vh;
+  }
+}
+
+.burbuja {
+  max-width: 85%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.estado {
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+textarea {
+  resize: none;
+}

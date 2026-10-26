@@ -1,0 +1,68 @@
+<section class="card shadow-sm chat">
+  <header class="card-header bg-dark text-white d-flex align-items-center gap-2">
+    <span class="estado rounded-circle bg-success" aria-hidden="true"></span>
+    <h2 class="h6 mb-0">Asistente GymFit</h2>
+  </header>
+
+  <!-- aria-live: los lectores de pantalla anuncian los mensajes nuevos -->
+  <div #lista class="card-body mensajes" role="log" aria-live="polite" aria-label="Conversación">
+    @for (mensaje of mensajes(); track $index) {
+      <div class="d-flex mb-2" [class.justify-content-end]="mensaje.autor === 'cliente'">
+        <div
+          class="burbuja px-3 py-2 rounded-3"
+          [class.bg-primary]="mensaje.autor === 'cliente'"
+          [class.text-white]="mensaje.autor === 'cliente'"
+          [class.bg-body-secondary]="mensaje.autor === 'asistente' && !mensaje.error"
+          [class.alert-danger]="mensaje.error"
+          [class.alert]="mensaje.error"
+          [class.mb-0]="mensaje.error"
+          [attr.data-autor]="mensaje.autor"
+        >
+          {{ mensaje.texto }}
+        </div>
+      </div>
+    }
+
+    @if (cargando()) {
+      <div class="d-flex mb-2 cargando" role="status">
+        <div class="burbuja px-3 py-2 rounded-3 bg-body-secondary text-secondary">
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          El asistente está escribiendo…
+        </div>
+      </div>
+    }
+  </div>
+
+  <footer class="card-footer bg-body">
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      @for (sugerencia of sugerencias; track sugerencia) {
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-secondary"
+          [disabled]="cargando()"
+          (click)="enviarSugerencia(sugerencia)"
+        >
+          {{ sugerencia }}
+        </button>
+      }
+    </div>
+
+    <form class="d-flex gap-2 align-items-end" (submit)="$event.preventDefault(); enviar()">
+      <div class="flex-grow-1">
+        <label for="mensaje" class="visually-hidden">Escribe tu pregunta</label>
+        <textarea
+          id="mensaje"
+          class="form-control"
+          rows="1"
+          placeholder="Escribe tu pregunta…"
+          [maxLength]="maxCaracteres"
+          [value]="borrador()"
+          (input)="actualizarBorrador($event)"
+          (keydown)="alPulsarTecla($event)"
+        ></textarea>
+        <div class="form-text text-end">{{ borrador().length }}/{{ maxCaracteres }}</div>
+      </div>
+      <button type="submit" class="btn btn-primary mb-4" [disabled]="!puedeEnviar()">Enviar</button>
+    </form>
+  </footer>
+</section>

@@ -1,0 +1,40 @@
+<nav class="navbar navbar-dark bg-dark">
+  <div class="container">
+    <span class="navbar-brand fw-bold">GymFit <span class="text-primary">Sevilla</span></span>
+  </div>
+</nav>
+
+<main class="container py-4 py-lg-5">
+  <div class="row g-4 align-items-start">
+    <!-- Presentación: en móvil aparece encima del chat; en escritorio, a su izquierda -->
+    <section class="col-lg-5">
+      <h1 class="display-6 fw-bold">Tu gimnasio en Sevilla</h1>
+      <p class="lead text-body-secondary">
+        Resuelve tus dudas al momento con nuestro asistente virtual, sin esperas.
+      </p>
+
+      <div class="card border-0 bg-body-tertiary">
+        <div class="card-body">
+          <h2 class="h6 text-uppercase text-body-secondary">Puedes preguntar por</h2>
+          <ul class="mb-0">
+            <li>Horarios de lunes a viernes y del fin de semana</li>
+            <li>Tarifas básica y premium</li>
+            <li>Matrícula y alta</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="small text-body-secondary mt-3 mb-0">
+        Para cualquier otra consulta, pregunta en recepción.
+      </p>
+    </section>
+
+    <section class="col-lg-7">
+      <app-chat />
+    </section>
+  </div>
+</main>
+
+<footer class="py-3 border-top">
+  <div class="container small text-body-secondary">© {{ anio }} GymFit Sevilla</div>
+</footer>
