@@ -28,14 +28,30 @@
 <main id="contenido" tabindex="-1">
   <!-- Sección principal: mensaje de bienvenida y, como protagonista, el chat -->
   <section id="inicio" class="gf-hero" aria-labelledby="titulo-principal">
+    <!--
+      Fotografía de stock (Pexels, Leon Mart) usada solo como fondo decorativo: alt vacío para que los lectores de
+      pantalla la ignoren. srcset deja que cada pantalla descargue solo el tamaño que necesita.
+      Los créditos y la licencia están en el pie de página y en CREDITOS-IMAGENES.md.
+    -->
+    <img
+      class="gf-hero-foto"
+      src="img/principal-1280.webp"
+      srcset="img/principal-768.webp 768w, img/principal-1280.webp 1280w, img/principal-1920.webp 1920w"
+      sizes="100vw"
+      width="1920"
+      height="1275"
+      alt=""
+      fetchpriority="high"
+      decoding="async"
+    />
     <div class="container">
       <div class="row g-4 g-xl-5 align-items-center">
         <div class="col-lg-5">
-          <span class="gf-eyebrow mb-3">Asistente virtual con IA</span>
+          <span class="gf-eyebrow gf-eyebrow-pastilla mb-3">Asistente virtual con IA</span>
           <h1 id="titulo-principal" class="gf-titulo mb-3">
             Tu gimnasio en <span class="gf-acento">Sevilla</span>, a un mensaje de distancia
           </h1>
-          <p class="lead text-body-secondary mb-4">
+          <p class="lead gf-lead mb-4">
             Pregunta a nuestro asistente por horarios, tarifas y matrícula. Te responde al momento.
           </p>
           <ul class="gf-etiquetas list-unstyled d-flex flex-wrap gap-2 mb-0" aria-label="Temas que puedes consultar">
@@ -47,6 +63,45 @@
 
         <div id="asistente" class="col-lg-7">
           <app-chat />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Ambiente: dos fotografías de stock, claramente indicadas como ilustrativas -->
+  <section class="gf-galeria" aria-labelledby="titulo-galeria">
+    <div class="container">
+      <h2 id="titulo-galeria" class="visually-hidden">Imágenes ilustrativas de entrenamiento</h2>
+      <div class="row g-3 g-lg-4">
+        <div class="col-md-6">
+          <figure class="gf-figura">
+            <img
+              src="img/deportista-600.webp"
+              srcset="img/deportista-600.webp 600w, img/deportista-1200.webp 1200w"
+              sizes="(min-width: 768px) 540px, 100vw"
+              width="1200"
+              height="800"
+              loading="lazy"
+              decoding="async"
+              alt="Deportista en blanco y negro sujetando una barra en un gimnasio a oscuras"
+            />
+            <figcaption>Imagen ilustrativa de stock. No es GymFit Sevilla.</figcaption>
+          </figure>
+        </div>
+        <div class="col-md-6">
+          <figure class="gf-figura">
+            <img
+              src="img/ambiente-600.webp"
+              srcset="img/ambiente-600.webp 600w, img/ambiente-1200.webp 1200w"
+              sizes="(min-width: 768px) 540px, 100vw"
+              width="1200"
+              height="800"
+              loading="lazy"
+              decoding="async"
+              alt="Rack con mancuernas y discos de pesas junto a una pared de ladrillo, con luz cálida"
+            />
+            <figcaption>Imagen ilustrativa de stock. No es GymFit Sevilla.</figcaption>
+          </figure>
         </div>
       </div>
     </div>
@@ -126,5 +181,18 @@
         </p>
       </div>
     </div>
+
+    <!-- Créditos: las fotografías son de stock y no muestran las instalaciones reales -->
+    <p class="gf-creditos small text-body-secondary mb-0">
+      Las fotografías son imágenes de stock de
+      <a href="https://www.pexels.com/" target="_blank" rel="noopener noreferrer">Pexels</a>
+      con fines ilustrativos: no muestran las instalaciones ni a las personas de GymFit Sevilla. Portada:
+      <a href="https://www.pexels.com/photo/barbell-on-the-floor-1552252/" target="_blank" rel="noopener noreferrer">Leon Mart</a>.
+      Galería:
+      <a href="https://www.pexels.com/photo/grayscale-photography-of-man-carrying-barbell-896058/" target="_blank" rel="noopener noreferrer">DreamLens Production</a>
+      y
+      <a href="https://www.pexels.com/photo/people-rope-sport-rustic-6389892/" target="_blank" rel="noopener noreferrer">Tima Miroshnichenko</a>.
+      Los enlaces se abren en una pestaña nueva.
+    </p>
   </div>
 </footer>

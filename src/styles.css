@@ -122,6 +122,28 @@ h1, h2, h3, h4, .gf-display {
   font-weight: 600;
 }
 
+/* Transición suave y ligera elevación en los botones de marca */
+.btn-accent,
+.btn-accent-outline {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-accent:hover:not(:disabled),
+.btn-accent-outline:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -10px rgba(255, 106, 26, 0.7);
+}
+
+.btn-accent:active:not(:disabled),
+.btn-accent-outline:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 /* Texto pequeño en mayúsculas que antecede a los títulos */
 .gf-eyebrow {
   display: inline-block;

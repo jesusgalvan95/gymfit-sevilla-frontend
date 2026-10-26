@@ -4,6 +4,7 @@
   /* Desenfoca lo que hay detrás al hacer scroll; si el navegador no lo admite, queda el fondo semitransparente */
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--gf-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 .gf-marca {
@@ -55,25 +56,46 @@ main:focus {
   position: relative;
   padding: 2.5rem 0 3.5rem;
   overflow: hidden;
-  /* Resplandor naranja arriba a la derecha sobre un fondo oscuro, sin imágenes */
-  background:
-    radial-gradient(60rem 28rem at 85% -10%, rgba(255, 106, 26, 0.22), transparent 70%),
-    radial-gradient(40rem 24rem at -10% 110%, rgba(255, 106, 26, 0.1), transparent 70%),
-    var(--gf-bg);
+  /* isolation: la foto y el degradado (z-index negativo) quedan dentro de esta sección, nunca detrás de la página */
+  isolation: isolate;
+  background: var(--gf-bg);
 }
 
-/* Rayas diagonales muy tenues que dan textura de "gimnasio" */
+/* Fotografía de fondo (decorativa). object-position la encuadra hacia el suelo, donde está la barra. */
+.gf-hero-foto {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 62%;
+}
+
+/*
+ * Degradado oscuro sobre la foto para que el texto se lea siempre:
+ *  - de izquierda a derecha, más opaco donde va el titular;
+ *  - de arriba abajo, funde la foto con el fondo negro de la página;
+ *  - un resplandor naranja arriba a la derecha, como antes.
+ */
 .gf-hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    -45deg,
-    rgba(255, 255, 255, 0.025) 0 2px,
-    transparent 2px 18px
-  );
-  mask-image: linear-gradient(to bottom, #000, transparent 85%);
-  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(50rem 26rem at 88% -10%, rgba(255, 106, 26, 0.24), transparent 70%),
+    linear-gradient(to bottom, rgba(11, 11, 13, 0.4) 0%, rgba(11, 11, 13, 0.05) 40%, rgba(11, 11, 13, 0.55) 80%, var(--gf-bg) 100%),
+    linear-gradient(90deg, rgba(11, 11, 13, 0.92) 0%, rgba(11, 11, 13, 0.72) 38%, rgba(11, 11, 13, 0.18) 100%);
+}
+
+/* En móvil el texto ocupa todo el ancho, así que el degradado es uniforme y más intenso */
+@media (max-width: 991.98px) {
+  .gf-hero::before {
+    background:
+      radial-gradient(40rem 20rem at 90% -5%, rgba(255, 106, 26, 0.22), transparent 70%),
+      linear-gradient(to bottom, rgba(11, 11, 13, 0.86) 0%, rgba(11, 11, 13, 0.7) 50%, rgba(11, 11, 13, 0.6) 80%, var(--gf-bg) 100%);
+  }
 }
 
 .gf-hero > .container {
@@ -89,6 +111,20 @@ main:focus {
 .gf-titulo {
   font-size: clamp(2.2rem, 5.5vw, 3.6rem);
   text-transform: uppercase;
+}
+
+/* Etiqueta naranja sobre la foto: va en una pastilla oscura casi opaca para que el contraste no dependa de la imagen */
+.gf-eyebrow-pastilla {
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--gf-border);
+  border-radius: 2rem;
+  background: rgba(11, 11, 13, 0.9);
+}
+
+/* Subtítulo sobre la foto: más claro que el gris habitual y con sombra suave para asegurar el contraste */
+.gf-lead {
+  color: #d4d4d8;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7);
 }
 
 .gf-subtitulo {
@@ -113,6 +149,50 @@ main:focus {
   scroll-margin-top: 5rem;
 }
 
+/* ---------- Galería de fotografías ---------- */
+.gf-galeria {
+  padding: 0 0 3.5rem;
+}
+
+@media (min-width: 992px) {
+  .gf-galeria {
+    padding-bottom: 5rem;
+  }
+}
+
+.gf-figura {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--gf-border);
+  border-radius: var(--gf-radius);
+  background: var(--gf-surface);
+  box-shadow: 0 22px 44px -26px rgba(0, 0, 0, 0.9);
+}
+
+.gf-figura img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.gf-figura:hover img {
+  transform: scale(1.04);
+}
+
+/* Pie de foto sobre un degradado oscuro: indica siempre que es una imagen de stock */
+.gf-figura figcaption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: 2.4rem 1rem 0.8rem;
+  font-size: 0.8rem;
+  color: var(--gf-text);
+  background: linear-gradient(to top, rgba(11, 11, 13, 0.92), transparent);
+}
+
 /* ---------- Información ---------- */
 .gf-info {
   padding: 3.5rem 0 4rem;
@@ -133,12 +213,14 @@ main:focus {
   border: 1px solid var(--gf-border);
   border-radius: var(--gf-radius);
   background: var(--gf-bg);
-  transition: border-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.9);
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .gf-tarjeta:hover {
   border-color: var(--gf-accent);
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+  box-shadow: 0 22px 40px -20px rgba(255, 106, 26, 0.45);
 }
 
 .gf-icono {
@@ -177,4 +259,10 @@ main:focus {
 
 .gf-pie a:hover {
   color: var(--gf-accent);
+}
+
+.gf-creditos {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--gf-border);
 }

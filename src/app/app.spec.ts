@@ -93,6 +93,53 @@ describe('App', () => {
     expect(tarjetasConBoton().some((boton) => boton.disabled)).toBe(false);
   });
 
+  it('la foto de la sección principal es decorativa y se carga con varios tamaños', () => {
+    const foto = pagina.querySelector<HTMLImageElement>('#inicio img.gf-hero-foto')!;
+
+    expect(foto.getAttribute('alt')).toBe(''); // alt vacío: los lectores de pantalla la ignoran
+    expect(foto.getAttribute('srcset')!.split(',').length).toBe(3);
+    expect(foto.getAttribute('fetchpriority')).toBe('high'); // es lo primero que ve el visitante
+    expect(foto.getAttribute('width')).toBeTruthy(); // reserva el hueco y evita saltos de diseño
+    expect(foto.getAttribute('height')).toBeTruthy();
+  });
+
+  it('todas las imágenes tienen alt; las de la galería lo describen y se cargan de forma diferida', () => {
+    const imagenes = Array.from(pagina.querySelectorAll<HTMLImageElement>('img'));
+    expect(imagenes.length).toBe(3);
+    expect(imagenes.every((imagen) => imagen.hasAttribute('alt'))).toBe(true);
+
+    const galeria = Array.from(pagina.querySelectorAll<HTMLImageElement>('.gf-figura img'));
+    expect(galeria.length).toBe(2);
+    for (const imagen of galeria) {
+      expect(imagen.getAttribute('alt')!.length).toBeGreaterThan(20);
+      expect(imagen.getAttribute('loading')).toBe('lazy');
+    }
+  });
+
+  it('las fotografías se presentan siempre como imágenes de stock, no como imágenes de GymFit Sevilla', () => {
+    const pies = Array.from(pagina.querySelectorAll('.gf-figura figcaption')).map((pie) => pie.textContent);
+    expect(pies.length).toBe(2);
+    for (const pie of pies) {
+      expect(pie).toContain('stock');
+      expect(pie).toContain('No es GymFit Sevilla');
+    }
+
+    const creditos = pagina.querySelector('.gf-creditos')!;
+    expect(creditos.textContent).toContain('imágenes de stock');
+    expect(creditos.textContent).toContain('no muestran las instalaciones ni a las personas de GymFit Sevilla');
+  });
+
+  it('los créditos enlazan con las fotos originales de Pexels y los enlaces externos son seguros', () => {
+    const enlaces = Array.from(pagina.querySelectorAll<HTMLAnchorElement>('.gf-creditos a'));
+
+    expect(enlaces.length).toBe(4); // Pexels + los tres autores
+    for (const enlace of enlaces) {
+      expect(enlace.href).toContain('https://www.pexels.com/');
+      expect(enlace.getAttribute('target')).toBe('_blank');
+      expect(enlace.getAttribute('rel')).toContain('noopener');
+    }
+  });
+
   /**
    * Los horarios y precios reales viven solo en el backend. Si alguien los copiara a la página, podrían quedar
    * desactualizados o inventarse: este test falla si aparece cualquier cifra o importe en el contenido estático.

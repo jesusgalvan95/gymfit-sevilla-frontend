@@ -76,6 +76,14 @@
 .gf-fila {
   display: flex;
   margin-bottom: 0.75rem;
+  animation: entra 0.25s ease-out;
+}
+
+@keyframes entra {
+  from {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
 }
 
 .gf-fila-cliente {
