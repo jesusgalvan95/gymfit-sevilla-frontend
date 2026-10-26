@@ -86,12 +86,27 @@ export class Chat {
     if (this.cargando()) {
       return;
     }
-    // scrollIntoView puede no existir (por ejemplo, en los tests); "?." evita el error.
-    this.anfitrion.nativeElement.scrollIntoView?.({
-      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-      block: 'center',
-    });
+    this.mostrarChat();
     this.enviarTexto(pregunta);
+  }
+
+  /**
+   * Se asegura de que el chat se vea al pulsar un botón de la página. Si ya está entero en pantalla (lo normal en
+   * escritorio) no se mueve nada; si no (lo normal en móvil, donde el chat queda debajo del título), se desplaza
+   * hasta que su parte superior quede justo debajo de la cabecera fija. El margen superior lo define
+   * {@code scroll-margin-top} en chat.css.
+   */
+  private mostrarChat(): void {
+    const chat = this.anfitrion.nativeElement;
+    const alturaCabecera = 80;
+    const caja = chat.getBoundingClientRect();
+    const estaVisible = caja.top >= alturaCabecera && caja.bottom <= window.innerHeight;
+    if (estaVisible) {
+      return;
+    }
+    // scrollIntoView y matchMedia pueden no existir (por ejemplo, en los tests); "?." evita el error.
+    const sinMovimiento = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    chat.scrollIntoView?.({ behavior: sinMovimiento ? 'auto' : 'smooth', block: 'start' });
   }
 
   protected actualizarBorrador(evento: Event): void {

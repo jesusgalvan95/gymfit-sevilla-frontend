@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './app';
 
 describe('App', () => {
@@ -23,6 +23,10 @@ describe('App', () => {
 
   function tarjetasConBoton(): HTMLButtonElement[] {
     return Array.from(pagina.querySelectorAll<HTMLButtonElement>('#informacion article button'));
+  }
+
+  function botonesDelHero(): HTMLButtonElement[] {
+    return Array.from(pagina.querySelectorAll<HTMLButtonElement>('#inicio ul.gf-etiquetas button'));
   }
 
   it('tiene la estructura de una landing: cabecera, contenido principal y pie', () => {
@@ -103,41 +107,118 @@ describe('App', () => {
     expect(foto.getAttribute('height')).toBeTruthy();
   });
 
-  it('todas las imágenes tienen alt; las de la galería lo describen y se cargan de forma diferida', () => {
-    const imagenes = Array.from(pagina.querySelectorAll<HTMLImageElement>('img'));
-    expect(imagenes.length).toBe(3);
-    expect(imagenes.every((imagen) => imagen.hasAttribute('alt'))).toBe(true);
-
-    const galeria = Array.from(pagina.querySelectorAll<HTMLImageElement>('.gf-figura img'));
-    expect(galeria.length).toBe(2);
-    for (const imagen of galeria) {
-      expect(imagen.getAttribute('alt')!.length).toBeGreaterThan(20);
-      expect(imagen.getAttribute('loading')).toBe('lazy');
-    }
+  it('la foto de fondo es la única imagen de la página: no hay tarjetas ni galería de fotos', () => {
+    expect(pagina.querySelectorAll('img').length).toBe(1);
+    expect(pagina.querySelector('figure')).toBeNull();
+    expect(pagina.querySelector('.gf-galeria')).toBeNull();
   });
 
-  it('las fotografías se presentan siempre como imágenes de stock, no como imágenes de GymFit Sevilla', () => {
-    const pies = Array.from(pagina.querySelectorAll('.gf-figura figcaption')).map((pie) => pie.textContent);
-    expect(pies.length).toBe(2);
-    for (const pie of pies) {
-      expect(pie).toContain('stock');
-      expect(pie).toContain('No es GymFit Sevilla');
-    }
-
+  it('la foto se presenta como imagen de stock y los créditos enlazan con la ficha original de Pexels', () => {
     const creditos = pagina.querySelector('.gf-creditos')!;
-    expect(creditos.textContent).toContain('imágenes de stock');
-    expect(creditos.textContent).toContain('no muestran las instalaciones ni a las personas de GymFit Sevilla');
-  });
+    expect(creditos.textContent).toContain('imagen de stock');
+    expect(creditos.textContent).toContain('no muestra las instalaciones ni a las personas de GymFit Sevilla');
 
-  it('los créditos enlazan con las fotos originales de Pexels y los enlaces externos son seguros', () => {
-    const enlaces = Array.from(pagina.querySelectorAll<HTMLAnchorElement>('.gf-creditos a'));
-
-    expect(enlaces.length).toBe(4); // Pexels + los tres autores
+    const enlaces = Array.from(creditos.querySelectorAll<HTMLAnchorElement>('a'));
+    expect(enlaces.length).toBe(2); // Pexels + el autor
     for (const enlace of enlaces) {
       expect(enlace.href).toContain('https://www.pexels.com/');
       expect(enlace.getAttribute('target')).toBe('_blank');
       expect(enlace.getAttribute('rel')).toContain('noopener');
     }
+  });
+
+  describe('botones Horarios, Tarifas y Matrícula bajo el título', () => {
+    it('son botones reales (no texto) con un nombre accesible que incluye lo que se ve', () => {
+      const botones = botonesDelHero();
+
+      expect(botones.map((boton) => boton.textContent!.replace(/\s+/g, ' ').trim())).toEqual([
+        'Horarios: preguntar al asistente',
+        'Tarifas: preguntar al asistente',
+        'Matrícula: preguntar al asistente',
+      ]);
+      expect(botones.every((boton) => boton.type === 'button')).toBe(true);
+    });
+
+    it('cada botón envía su pregunta a POST /api/chat una sola vez y la muestra en el chat', async () => {
+      const preguntas = ['¿Qué horario tenéis?', '¿Cuánto cuestan las tarifas?', '¿Hay que pagar matrícula?'];
+
+      for (const [indice, pregunta] of preguntas.entries()) {
+        botonesDelHero()[indice].click();
+        await fixture.whenStable();
+
+        const peticion = http.expectOne('/api/chat');
+        expect(peticion.request.method).toBe('POST');
+        expect(peticion.request.body).toEqual({ mensaje: pregunta });
+        expect(pagina.querySelector('app-chat')!.textContent).toContain(pregunta);
+
+        peticion.flush({ respuesta: 'Respuesta de prueba', intencion: 'HORARIO' });
+        await fixture.whenStable();
+      }
+    });
+
+    it('no duplican peticiones: pulsar varias veces seguidas, o otro botón, envía solo una', async () => {
+      const [horarios, tarifas] = botonesDelHero();
+
+      horarios.click();
+      horarios.click(); // doble clic inmediato, antes de que Angular repinte
+      tarifas.click(); // otro botón mientras la primera pregunta sigue en curso
+      tarjetasConBoton()[2].click(); // y una tarjeta
+      await fixture.whenStable();
+
+      const peticiones = http.match('/api/chat');
+      expect(peticiones.length).toBe(1);
+      expect(peticiones[0].request.body).toEqual({ mensaje: '¿Qué horario tenéis?' });
+      peticiones[0].flush({ respuesta: 'ok', intencion: 'HORARIO' });
+    });
+
+    it('se desactivan mientras se espera la respuesta y se reactivan después', async () => {
+      botonesDelHero()[0].click();
+      await fixture.whenStable();
+      expect(botonesDelHero().every((boton) => boton.disabled)).toBe(true);
+
+      http.expectOne('/api/chat').flush({ respuesta: 'ok', intencion: 'HORARIO' });
+      await fixture.whenStable();
+      expect(botonesDelHero().some((boton) => boton.disabled)).toBe(false);
+    });
+
+    it('se reactivan también si la petición falla, y se puede volver a preguntar', async () => {
+      botonesDelHero()[0].click();
+      await fixture.whenStable();
+      http.expectOne('/api/chat').flush(null, { status: 0, statusText: 'Unknown Error' });
+      await fixture.whenStable();
+
+      expect(pagina.querySelector('app-chat')!.textContent).toContain('No se ha podido conectar');
+      expect(botonesDelHero().some((boton) => boton.disabled)).toBe(false);
+
+      botonesDelHero()[0].click();
+      await fixture.whenStable();
+      http.expectOne('/api/chat').flush({ respuesta: 'ok', intencion: 'HORARIO' });
+    });
+
+    it('llevan hasta el chat si no está entero a la vista (por ejemplo, en móvil)', async () => {
+      const chat = pagina.querySelector<HTMLElement>('app-chat')!;
+      chat.scrollIntoView = vi.fn();
+      // En jsdom todas las cajas miden 0, es decir, el chat queda fuera del área visible bajo la cabecera.
+
+      botonesDelHero()[1].click();
+      await fixture.whenStable();
+
+      expect(chat.scrollIntoView).toHaveBeenCalledTimes(1);
+      expect(chat.scrollIntoView).toHaveBeenCalledWith(expect.objectContaining({ block: 'start' }));
+      http.expectOne('/api/chat').flush({ respuesta: 'ok', intencion: 'PRECIO' });
+    });
+
+    it('no mueven la página si el chat ya está entero a la vista (por ejemplo, en escritorio)', async () => {
+      const chat = pagina.querySelector<HTMLElement>('app-chat')!;
+      chat.scrollIntoView = vi.fn();
+      chat.getBoundingClientRect = () => ({ top: 150, bottom: 600 }) as DOMRect;
+
+      botonesDelHero()[1].click();
+      await fixture.whenStable();
+
+      expect(chat.scrollIntoView).not.toHaveBeenCalled();
+      http.expectOne('/api/chat').flush({ respuesta: 'ok', intencion: 'PRECIO' });
+    });
   });
 
   /**

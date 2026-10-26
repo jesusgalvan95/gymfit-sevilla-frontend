@@ -21,6 +21,16 @@ interface TarjetaInfo {
   accion?: string;
 }
 
+/**
+ * Preguntas que se envían al asistente. Están definidas una sola vez porque las usan dos sitios distintos de la
+ * página (los botones bajo el título y las tarjetas informativas) y deben ser siempre idénticas.
+ */
+const PREGUNTAS = {
+  horarios: '¿Qué horario tenéis?',
+  tarifas: '¿Cuánto cuestan las tarifas?',
+  matricula: '¿Hay que pagar matrícula?',
+} as const;
+
 /** Página principal de GymFit Sevilla: cabecera, chat con el asistente, información y pie de página. */
 @Component({
   selector: 'app-root',
@@ -34,26 +44,33 @@ export class App {
   /** Referencia al chat para que las tarjetas puedan enviarle preguntas y saber si está ocupado. */
   protected readonly chat = viewChild(Chat);
 
+  /** Botones bajo el título principal: cada uno envía su pregunta al chat. */
+  protected readonly temas = [
+    { nombre: 'Horarios', pregunta: PREGUNTAS.horarios },
+    { nombre: 'Tarifas', pregunta: PREGUNTAS.tarifas },
+    { nombre: 'Matrícula', pregunta: PREGUNTAS.matricula },
+  ];
+
   protected readonly tarjetas: TarjetaInfo[] = [
     {
       icono: 'reloj',
       titulo: 'Horarios',
       descripcion: 'Consulta cuándo abrimos de lunes a viernes y durante el fin de semana.',
-      pregunta: '¿Qué horario tenéis?',
+      pregunta: PREGUNTAS.horarios,
       accion: 'Preguntar por los horarios',
     },
     {
       icono: 'tarifa',
       titulo: 'Tarifas',
       descripcion: 'Conoce las tarifas básica y premium y lo que cuesta cada una al mes.',
-      pregunta: '¿Cuánto cuestan las tarifas?',
+      pregunta: PREGUNTAS.tarifas,
       accion: 'Preguntar por las tarifas',
     },
     {
       icono: 'matricula',
       titulo: 'Matrícula',
       descripcion: 'Averigua si hay que pagar matrícula al darte de alta.',
-      pregunta: '¿Hay que pagar matrícula?',
+      pregunta: PREGUNTAS.matricula,
       accion: 'Preguntar por la matrícula',
     },
     {

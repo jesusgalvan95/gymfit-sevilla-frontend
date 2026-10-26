@@ -1,5 +1,7 @@
 :host {
   display: block;
+  /* Al desplazarse hasta el chat (scrollIntoView), la cabecera fija no lo tapa */
+  scroll-margin-top: 5rem;
 }
 
 .gf-chat {
@@ -63,12 +65,16 @@
   background: var(--gf-surface);
 }
 
-/* En móvil el chat ocupa buena parte de la pantalla; dvh tiene en cuenta la barra del navegador */
+/*
+ * En móvil la conversación se adapta a la altura de la pantalla para que el chat entero (cabecera, mensajes,
+ * sugerencias y campo de texto) quepa a la vez al llegar a él desde un botón de la página. Los 25rem son lo que
+ * ocupan la cabecera fija de la página y el resto del chat; dvh tiene en cuenta la barra del navegador móvil
+ * (la línea con vh es la alternativa para navegadores antiguos).
+ */
 @media (max-width: 575.98px) {
   .gf-chat-mensajes {
-    height: min(60vh, 30rem);
-    height: min(60dvh, 30rem);
-    min-height: 18rem;
+    height: clamp(14rem, calc(100vh - 25rem), 30rem);
+    height: clamp(14rem, calc(100dvh - 25rem), 30rem);
     padding: 1rem;
   }
 }

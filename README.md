@@ -24,5 +24,6 @@ npx ng test --watch=false    # tests unitarios (Vitest), sin backend ni red
 
 ## Imágenes
 
-Las fotografías son imágenes de stock de Pexels con fines ilustrativos (no son de GymFit Sevilla). Fuentes, autores,
-licencia y modificaciones en [CREDITOS-IMAGENES.md](CREDITOS-IMAGENES.md). Versiones optimizadas (WebP) en `public/img/`.
+La fotografía de fondo de la sección principal es una imagen de stock de Pexels con fines ilustrativos (no es de
+GymFit Sevilla). Fuente, autor, licencia y modificaciones en [CREDITOS-IMAGENES.md](CREDITOS-IMAGENES.md). Versiones
+optimizadas (WebP) en `public/img/`.
